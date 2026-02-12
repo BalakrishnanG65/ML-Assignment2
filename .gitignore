@@ -1,3 +1,4 @@
 venv/
 __pycache__/ *.pyc *.pyo *.pyd .DS_Store .idea/ *.sublime-project *.sublime-workspace*.log *.sqlite3 *.env .env/ ```
 # Ignore virtual environment directories venv/ env/ ENV/ # Ignore Python bytecode files __pycache__/ *.pyc *.pyo *.pyd # Ignore macOS specific files .DS_Store # Ignore IDE specific files .idea/ *.sublime-project *.sublime-workspace # Ignore log files and databases *.log *.sqlite3 # Ignore environment variable files .env .env/
+models/__pycache__
