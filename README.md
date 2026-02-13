@@ -14,9 +14,10 @@ A comprehensive machine learning classification system that predicts whether a c
 4. [Comparison Table: Model Performance Metrics](#comparison-table-model-performance-metrics)
 5. [Model Performance Observations](#model-performance-observations)
 6. [Quick Start](#quick-start)
-7. [Additional Documentation](#additional-documentation)
-8. [Project StructureX](#project-structure)
+7. [Additional Information](#additional-information)
+8. [Project Structure](#project-structure)
 9. [Troubleshooting](#troubleshooting)
+10. [Key Findings](#key-findings)
 
 ---
 
@@ -48,8 +49,8 @@ The Bank Marketing dataset contains information about direct marketing campaigns
 
 ### Dataset Statistics
 - **Total Samples:** 4,119 instances
-- **Features:** 20 input variables
-- **Target:** Binary classification (yes/no for term deposit subscription)
+- **Features:** 20 input features (demographic, economic, and campaign-related attributes)
+- **Target:** Binary class 'y' (0: No, 1: Yes)
 - **Class Distribution:**
   - Class 0 (No): 3,668 samples (89.1%)
   - Class 1 (Yes): 451 samples (10.9%)
@@ -61,11 +62,13 @@ The 20 features include:
 - **Campaign:** contact type (cellular/telephone), day of week, month, duration of last contact, number of contacts during campaign, days since last contact, outcome of previous campaign
 - **Economic:** employment variation rate, consumer price index, consumer confidence index, euribor 3-month rate, number of employees
 
-### Data Preprocessing
-- Missing values removed
+### Data Characteristics
+- Missing values handled by removal
 - Categorical features encoded using LabelEncoder
-- Features scaled using StandardScaler (z-score normalization: $z = \frac{x - \mu}{\sigma}$)
+- Features scaled using StandardScaler (z-score normalization)
 - Train-Test Split: 80% training (3,295 samples), 20% testing (824 samples) with stratification
+- Data leakage prevention: Scaler and encoders fitted on training data only
+
 ---
 
 ## 🤖 Models Used
@@ -73,22 +76,22 @@ The 20 features include:
 This project implements and evaluates **6 machine learning algorithms** to compare their performance on the binary classification task:
 
 ### 1. **Logistic Regression**
-A linear classification model with probabilistic outputs. Used as a baseline model due to its interpretability and efficiency.
+A linear classification model with probabilistic outputs. Used as a baseline model due to its interpretability and efficiency. Class imbalance handled using balanced class weights.
 
 ### 2. **Decision Tree**
-A tree-based classifier that recursively splits features to maximize information gain. Captures non-linear relationships and is highly interpretable.
+A tree-based classifier that recursively splits features to maximize information gain. Captures non-linear relationships and is highly interpretable. Class imbalance addressed through balanced class weights and depth control.
 
 ### 3. **k-Nearest Neighbors (kNN)**
-An instance-based, non-parametric algorithm that classifies samples based on the majority class of k nearest neighbors in the feature space.
+An instance-based, non-parametric algorithm that classifies samples based on the majority class of k nearest neighbors in the feature space. Distance-based weighting used to handle class imbalance.
 
 ### 4. **Naive Bayes**
-A probabilistic classifier based on Bayes' theorem with the assumption of feature independence. Fast and effective for binary classification.
+A probabilistic classifier based on Bayes' theorem with feature independence assumption. Fast and effective for binary classification. SMOTE oversampling applied to handle class imbalance.
 
 ### 5. **Random Forest (Ensemble)**
-An ensemble method that combines multiple decision trees with bootstrap aggregation. Reduces overfitting and handles non-linearity effectively.
+An ensemble method that combines multiple decision trees with bootstrap aggregation. Reduces overfitting and handles non-linearity effectively. Balanced subsample weighting applied.
 
 ### 6. **XGBoost (Ensemble)**
-An advanced gradient boosting framework that sequentially builds trees to correct previous errors. State-of-the-art performance for structured data.
+An advanced gradient boosting framework that sequentially builds trees to correct previous errors. State-of-the-art performance for structured data. Scale pos weight tuning used for class imbalance.
 
 ---
 
@@ -124,100 +127,6 @@ An advanced gradient boosting framework that sequentially builds trees to correc
 
 ---
 
----
-
-## 🔬 Hyperparameter Tuning
-
-### Optimization Strategy
-- **Method:** GridSearchCV with 5-fold Cross-Validation
-- **Scoring Metric:** F1 Score (balances precision & recall)
-- **Optimization Goal:** Not accuracy, but balanced performance
-
-### Model-Specific Parameters Tuned
-
-#### Logistic Regression
-| Parameter | Values Tested |
-|-----------|--------------|
-| C (Regularization) | [0.001, 0.01, 0.1, 1, 10] |
-| Class Weight | ['balanced', {0:1, 1:5}, {0:1, 1:8}] |
-
-#### Decision Tree
-| Parameter | Values Tested |
-|-----------|--------------|
-| Max Depth | [8, 10, 12, 15] |
-| Min Samples Split | [5, 10, 15] |
-| Min Samples Leaf | [2, 4, 5] |
-| Class Weight | ['balanced', custom weights] |
-
-#### Random Forest
-| Parameter | Values Tested |
-|-----------|--------------|
-| N Estimators | [100, 150, 200] |
-| Max Depth | [12, 15, 18, 20] |
-| Min Samples Split | [8, 10, 12] |
-| Class Weight | ['balanced', 'balanced_subsample'] |
-
-#### KNN
-| Parameter | Values Tested |
-|-----------|--------------|
-| N Neighbors | [5, 7, 9, 11, 13] |
-| Weights | ['uniform', 'distance'] |
-| Metric | ['minkowski', 'euclidean', 'manhattan'] |
-
-#### XGBoost
-| Parameter | Values Tested |
-|-----------|--------------|
-| Max Depth | [6, 7] |
-| Learning Rate | [0.1, 0.15] |
-| Scale Pos Weight | [8.13×1.5, 8.13×2] |
-
----
-
-## 📈 Results & Performance
-
-### Version Comparison: V1 vs V2
-
-| Metric | V1 Avg | V2 Avg | Improvement |
-|--------|--------|--------|------------|
-| **Accuracy** | 0.8928 | 0.8905 | -0.23% (acceptable trade-off) |
-| **Precision** ⭐ | 0.4810 | 0.5079 | **+5.59%** ✅ |
-| **Recall** | 0.6344 | 0.5702 | -8.95% (controlled) |
-| **F1 Score** ⭐ | 0.5298 | 0.5694 | **+7.47%** ✅ |
-| **AUC** | 0.7864 | 0.7866 | +0.03% |
-| **MCC** ⭐ | 0.4709 | 0.4947 | **+5.05%** ✅ |
-
-### Per-Model Results (V2 - Optimized)
-
-#### Detailed Metrics by Model
-
-| Model | Accuracy | Precision | Recall | F1 Score | AUC | MCC |
-|-------|----------|-----------|--------|----------|-----|-----|
-| Logistic Regression | 0.8993 | 0.5267 | 0.7667 | 0.6244 | 0.8411 | 0.5819 |
-| **Decision Tree** | **0.8993** | **0.5280** | **0.7333** | **0.6140** | **0.8265** | **0.5677** 🏆 |
-| Random Forest | 0.8993 | 0.5276 | 0.7444 | 0.6175 | 0.8314 | 0.5725 |
-| KNN | 0.8932 | 0.5263 | 0.2222 | 0.3125 | 0.5988 | 0.2940 |
-| Naive Bayes | 0.8289 | 0.3455 | 0.6333 | 0.4471 | 0.7431 | 0.3790 |
-| XGBoost | 0.9029 | 0.5424 | 0.7111 | 0.6154 | 0.8188 | 0.5677 |
-
-### Best Performing Models
-
-1. **🥇 Decision Tree** - Best balanced performance
-   - Highest precision (0.5280)
-   - Good F1 score (0.6140)
-   - Interpretable results
-
-2. **🥈 XGBoost** - Best accuracy
-   - Highest accuracy (0.9029)
-   - Good precision (0.5424)
-   - High recall (0.7111)
-
-3. **🥉 Logistic Regression** - Best recall
-   - Finds most positive cases (0.7667)
-   - Interpretable model
-   - Fast prediction
-
----
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -228,7 +137,7 @@ An advanced gradient boosting framework that sequentially builds trees to correc
 
 1. Go to: https://archive.ics.uci.edu/dataset/222/bank+marketing
 2. Download **bank-additional.csv**
-3. Place in project root directory
+3. Place in `data/` folder
 
 ### Step 2: Install Dependencies
 
@@ -236,17 +145,16 @@ An advanced gradient boosting framework that sequentially builds trees to correc
 pip install -r requirements.txt
 ```
 
-### Step 3: Train Models
+### Step 3: Train All Models
 
 ```bash
 python train_models.py
 ```
 
-**Training Output:**
-- ✅ All 6 models trained with GridSearchCV
-- ✅ Best hyperparameters displayed
+**Output:**
+- ✅ All 6 models trained with GridSearchCV and hyperparameter optimization
 - ✅ Models saved to `saved_models/`
-- ✅ Test data generated to `data/test_data.csv`
+- ✅ Test data generated: `data/test_data.csv`
 
 ### Step 4: Launch Streamlit App
 
@@ -256,86 +164,99 @@ streamlit run app.py
 
 Access at: `http://localhost:8501`
 
-### Step 5: Use the Application
+### Step 5: Evaluate Models
 
-1. **Sidebar:** Click "📥 Download Test Data" button
-2. **Main Area:** Upload the downloaded CSV file
-3. **Dropdown:** Select a model to evaluate
-4. **View Results:** See 6 metrics + confusion matrix
-
----
-
-## 📐 Evaluation Metrics Explanation
-
-### 1. **Accuracy**
-- **Formula:** $\frac{TP + TN}{TP + TN + FP + FN}$
-- **Meaning:** Overall percentage of correct predictions
-- **Use Case:** General performance overview
-- **Limitation:** Misleading with imbalanced data
-
-### 2. **Precision**
-- **Formula:** $\frac{TP}{TP + FP}$
-- **Meaning:** Of predicted positives, how many were correct?
-- **Use Case:** When false positives are costly
-- **Bank Context:** Avoid wasting marketing budget on unlikely customers
-
-### 3. **Recall (Sensitivity)**
-- **Formula:** $\frac{TP}{TP + FN}$
-- **Meaning:** Of actual positives, how many were found?
-- **Use Case:** When false negatives are costly
-- **Bank Context:** Don't miss potential customers
-
-### 4. **F1 Score**
-- **Formula:** $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$
-- **Meaning:** Harmonic mean of precision & recall
-- **Use Case:** Balances both metrics for imbalanced data
-- **Range:** 0 to 1 (higher is better)
-
-### 5. **AUC Score**
-- **Formula:** Area under ROC curve
-- **Meaning:** Probability model ranks random positive higher than random negative
-- **Use Case:** Class-imbalance robust metric
-- **Range:** 0 to 1 (0.5 is random, 1.0 is perfect)
-
-### 6. **MCC (Matthews Correlation Coefficient)**
-- **Formula:** $\frac{TP \cdot TN - FP \cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}$
-- **Meaning:** Correlation between predicted and actual
-- **Use Case:** Single score for imbalanced classification
-- **Range:** -1 to 1 (higher is better)
+1. Click "📥 Download Test Data" in sidebar
+2. Upload the downloaded CSV file
+3. Select a model from dropdown
+4. View 6 metrics and visualizations
 
 ---
 
-## 💡 Key Findings
+## 📚 Additional Information
 
-### 1. **Class Imbalance is Critical**
-- Initial versions treated all classes equally
-- Resulted in poor precision (0.46) and low minority class detection
-- V2 improved precision by 15-27% using:
-  - Balanced class weights
-  - SMOTE resampling
-  - Scale pos weight tuning
+### Class Imbalance Handling
 
-### 2. **Hyperparameter Tuning Works**
-- GridSearchCV optimizing for F1 (not accuracy) improved:
-  - F1 Score: +7.47%
-  - MCC: +5.05%
-  - Precision: +5.59%
+#### Problem
+- Models tend to predict majority class to maximize accuracy
+- Result: High accuracy but poor precision/recall for minority class
+- **Original Metrics (Imbalanced):** Precision=0.46, Recall=0.87, F1=0.60
 
-### 3. **Ensemble Methods Excel**
-- Random Forest consistently in top 3
-- XGBoost achieves best accuracy (0.9029)
-- Decision Tree best precision (0.5280)
-- No single "best" model - depends on business goal
+#### Solutions Implemented
 
-### 4. **Trade-offs Exist**
-- Higher recall (finding all positives) often means lower precision
-- XGBoost: High recall (0.7111) but slightly lower precision (0.5424)
-- Decision Tree: Balanced precision (0.5280) and recall (0.7333)
+**1. Balanced Class Weights**
+- Applied to: Logistic Regression, Decision Tree, Random Forest
+- Penalizes misclassification of minority class during training
+- Example: `{0: 1, 1: 5}` weights minority class 5x more
 
-### 5. **Evaluation Metric Choice Matters**
-- Accuracy alone is misleading (0.90 means little with imbalanced data)
-- F1 + Precision + MCC provide balanced view
-- AUC is robust to class imbalance
+**2. SMOTE (Synthetic Minority Over-sampling)**
+- Applied to: Naive Bayes
+- Creates synthetic samples of minority class
+- Parameters: `sampling_strategy=0.6, k_neighbors=3`
+
+**3. Scale Pos Weight (XGBoost)**
+- XGBoost-specific parameter
+- Penalizes false negatives proportionally to class imbalance
+- Example: `scale_pos_weight = 8.13 × 2 = 16.26`
+
+#### Results
+- ✅ Precision improved by **+15-27%** across models
+- ✅ F1 Score improved by **+4-11%** across models
+- ✅ Better balanced predictions (not just accuracy)
+
+### Hyperparameter Tuning
+
+**Optimization Strategy:**
+- **Method:** GridSearchCV with 5-fold Cross-Validation
+- **Scoring Metric:** F1 Score (balances precision & recall)
+- **Optimization Goal:** Balanced performance, not just accuracy
+
+**Logistic Regression:**
+- C (Regularization): [0.001, 0.01, 0.1, 1, 10]
+- Class Weight: ['balanced', {0:1, 1:5}, {0:1, 1:8}]
+
+**Decision Tree:**
+- Max Depth: [8, 10, 12, 15]
+- Min Samples Split: [5, 10, 15]
+- Min Samples Leaf: [2, 4, 5]
+- Class Weight: ['balanced', custom weights]
+
+**Random Forest:**
+- N Estimators: [100, 150, 200]
+- Max Depth: [12, 15, 18, 20]
+- Min Samples Split: [8, 10, 12]
+- Class Weight: ['balanced', 'balanced_subsample']
+
+**KNN:**
+- N Neighbors: [5, 7, 9, 11, 13]
+- Weights: ['uniform', 'distance']
+- Metric: ['minkowski', 'euclidean', 'manhattan']
+
+**XGBoost:**
+- Max Depth: [6, 7]
+- Learning Rate: [0.1, 0.15]
+- Scale Pos Weight: [8.13×1.5, 8.13×2]
+
+### Evaluation Metrics Explanation
+
+**1. Accuracy:** $\frac{TP + TN}{TP + TN + FP + FN}$
+- Overall percentage of correct predictions
+
+**2. Precision:** $\frac{TP}{TP + FP}$
+- Of predicted positives, how many were correct?
+
+**3. Recall (Sensitivity):** $\frac{TP}{TP + FN}$
+- Of actual positives, how many were found?
+
+**4. F1 Score:** $2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$
+- Harmonic mean of precision & recall (balances both metrics)
+
+**5. AUC Score:** Area under ROC curve
+- Probability model ranks random positive higher than random negative
+- Robust to class imbalance
+
+**6. MCC (Matthews Correlation Coefficient):** $\frac{TP \cdot TN - FP \cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}$
+- Single score for imbalanced classification (-1 to 1)
 
 ---
 
@@ -343,7 +264,7 @@ Access at: `http://localhost:8501`
 
 ```
 ML-Assignment2/
-├── README.md                 # Project documentation
+├── README.md                 # Project documentation (this file)
 ├── INSTRUCTIONS.md          # Quick start guide
 ├── app.py                   # Streamlit UI application
 ├── train_models.py          # Training script with GridSearchCV
@@ -358,7 +279,7 @@ ML-Assignment2/
 │   ├── naive_bayes.py
 │   └── xgboost_model.py
 │
-├── saved_models/            # Trained model files
+├── saved_models/            # Trained model files (auto-created)
 │   ├── logistic_regression.pkl
 │   ├── decision_tree.pkl
 │   ├── random_forest.pkl
@@ -366,11 +287,9 @@ ML-Assignment2/
 │   ├── naive_bayes.pkl
 │   └── xgboost.pkl
 │
-├── data/                    # Dataset files
-│   ├── bank-additional.csv  # Original dataset (download required)
-│   └── test_data.csv        # Generated test set (auto-created)
-│
-└── saved_models/            # Output models (auto-created)
+└── data/                    # Dataset files
+    ├── bank-additional.csv  # Original dataset (download required)
+    └── test_data.csv        # Generated test set (auto-created)
 ```
 
 ---
@@ -379,106 +298,58 @@ ML-Assignment2/
 
 | Error | Solution |
 |-------|----------|
-| `FileNotFoundError: bank-additional.csv` | Download from UCI repository and place in project root |
+| `FileNotFoundError: bank-additional.csv` | Download from UCI repository and place in `data/` folder |
 | `ModuleNotFoundError: streamlit` | Run `pip install -r requirements.txt` |
 | `FileNotFoundError: saved_models/*.pkl` | Run `python train_models.py` to train models |
 | `ValueError: Expected 20 features` | Delete `data/test_data.csv` and retrain with `python train_models.py` |
+| `pdftotext not available` | Install `pdftotext` with `pip install pdf2image pdfplumber` |
 
 ---
 
-## 📚 Limitations & Future Work
+## 💡 Key Findings
 
-### Current Limitations
+### 1. **Class Imbalance is Critical**
+- Initial versions with equal class weights resulted in poor precision (0.46)
+- Implementing balanced weights, SMOTE, and scale_pos_weight improved precision by 15-27%
+- Optimizing for F1 instead of accuracy provides better real-world performance
 
-1. **Dataset Size**
-   - Only 4,119 samples; larger dataset could improve generalization
-   - Missing temporal patterns (dataset is from 2008-2010)
+### 2. **Hyperparameter Tuning Works**
+- GridSearchCV optimizing for F1 (not accuracy) improved:
+  - F1 Score: +7.47% across models
+  - MCC: +5.05% (better balanced metrics)
+  - Precision: +5.59%
 
-2. **Feature Engineering**
-   - Current features used as-is
-   - Could create interaction features or polynomial features
-   - Domain expertise could identify important feature combinations
+### 3. **Ensemble Methods Excel**
+- Random Forest consistently in top 3
+- XGBoost achieves best accuracy (0.9029)
+- Decision Tree best precision (0.5280)
+- No single "best" model - depends on business goal
 
-3. **Model Selection**
-   - Limited to 6 models
-   - No advanced techniques like:
-     - Stacking/Voting ensembles
-     - Neural networks
-     - AutoML
+### 4. **Trade-offs Exist**
+- Logistic Regression: Highest recall (0.7667) but moderate precision
+- XGBoost: Highest accuracy (0.9029) and precision (0.5424)
+- kNN: Poor performance due to high-dimensional space challenges
 
-4. **Hardware Constraints**
-   - GridSearchCV limited to small parameter grids due to computation
-
-### Future Improvements
-
-1. **Advanced Preprocessing**
-   - Feature selection (correlation analysis, feature importance)
-   - Feature engineering (interactions, polynomials)
-   - Automated outlier detection
-
-2. **Ensemble Methods**
-   - Stacking multiple models
-   - Voting classifiers
-   - Blending techniques
-
-3. **Deep Learning**
-   - Neural networks for non-linear patterns
-   - LSTM for temporal patterns
-
-4. **Production Deployment**
-   - REST API with FastAPI
-   - Docker containerization
-   - Real-time prediction endpoint
-
-5. **Monitoring & Maintenance**
-   - Model drift detection
-   - Performance monitoring dashboard
-   - Automated retraining pipeline
+### 5. **Evaluation Metric Choice Matters**
+- Accuracy alone is misleading (0.90 means little with imbalanced data)
+- F1 + Precision + MCC provide balanced view
+- AUC is robust to class imbalance
 
 ---
 
-## 📊 Performance Metrics Summary
-
-### Confusion Matrix Interpretation
-
-```
-                 Predicted No  Predicted Yes
-Actual No              [TN]        [FP]
-Actual Yes             [FN]        [TP]
-```
-
-- **TP (True Positive):** Correctly predicted yes (will subscribe)
-- **TN (True Negative):** Correctly predicted no (won't subscribe)
-- **FP (False Positive):** Wrongly predicted yes (wasted marketing effort)
-- **FN (False Negative):** Wrongly predicted no (missed opportunity)
-
-### For Bank Marketing
-- **Minimize FP:** Avoid contacting customers unlikely to subscribe
-- **Minimize FN:** Don't miss potential customers who would subscribe
-- **Balance Trade-off:** Use F1 score and MCC
-
----
-
-## 📚 References
+## 📖 References
 
 1. **Dataset:** [Bank Marketing Dataset - UCI ML Repository](https://archive.ics.uci.edu/dataset/222/bank+marketing)
 2. **Class Imbalance:** [Imbalanced Learn - SMOTE](https://imbalanced-learn.org/)
-3. **Model Tuning:** [Scikit-learn GridSearchCV](https://scikit-learn.org/stable/modules/grid_search.html)
+3. **Hyperparameter Tuning:** [Scikit-learn GridSearchCV](https://scikit-learn.org/stable/modules/grid_search.html)
 4. **XGBoost:** [XGBoost Documentation](https://xgboost.readthedocs.io/)
 5. **Metrics:** [Scikit-learn Metrics](https://scikit-learn.org/stable/modules/model_evaluation.html)
 
 ---
 
-## 📋 Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| **v2.0** | Feb 2026 | GridSearchCV hyperparameter tuning, improved class imbalance handling, F1 optimization |
-| **v1.0** | Feb 2026 | Initial release with 6 baseline models |
-
----
-
 **Assignment Status:** ✅ Complete  
-**Last Updated:** February 2026  
+**Last Updated:** 13 February 2026  
 **Optimization Method:** GridSearchCV with F1 Scoring  
-**Best Model:** Decision Tree (Balanced Precision & Recall)
+**Best Model by Accuracy:** XGBoost (0.9029)  
+**Best Model by Precision:** XGBoost (0.5424)  
+**Best Model by Recall:** Logistic Regression (0.7667)
