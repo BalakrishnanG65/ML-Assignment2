@@ -3,7 +3,7 @@
 A comprehensive machine learning classification system that predicts whether a client will subscribe to a bank term deposit using 6 different algorithms with hyperparameter optimization and class imbalance handling.
 
 **Assignment:** ML-Assignment2 | M.Tech AI & ML (WILP), Semester 1
-
+**By:** Balakrishnan G (2025aa05163)
 ---
 
 ## 📋 Table of Contents
